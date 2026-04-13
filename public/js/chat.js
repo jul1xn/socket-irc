@@ -27,6 +27,7 @@ socket.on("connect", () => {
 socket.on('message', recieveMessage);
 socket.on('userJoinedChannel', userJoinedChannel);
 socket.on('userLeftChannel', userLeftChannel);
+socket.on('userList', receiveUserList);
 
 function appendLine(html, timestamp) {
     const messageElement = document.createElement('div');
@@ -129,7 +130,28 @@ function userLeftChannel(data) {
 }
 
 function listUsers() {
-    
+    socket.emit('requestUserList', {
+        channel: localStorage.getItem("channel")
+    });
+}
+
+function receiveUserList(data) {
+    const channel = data.channel || localStorage.getItem("channel");
+    const users = Array.isArray(data.users) ? data.users : [];
+
+    if (users.length === 0) {
+        appendLine(`<span style="color: lightblue;">Users in #${channel}: none</span>`);
+        return;
+    }
+
+    const formattedUsers = users
+        .map((user) => {
+            const guestSuffix = user.isGuest ? ' (Guest)' : '';
+            return `<span style="color: ${stringToColour(user.username)}">${user.username}</span>${guestSuffix}`;
+        })
+        .join(', ');
+
+    appendLine(`<span style="color: lightblue;">Users in #${channel}: ${formattedUsers}</span>`);
 }
 
 function whoAmI() {

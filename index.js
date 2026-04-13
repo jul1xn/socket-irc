@@ -18,6 +18,10 @@ app.use(express.urlencoded({ extended: true }));
 io.on("connection", (socket) => {
     console.log("User connected:", socket.id);
 
+    socket.data.username = null;
+    socket.data.channel = null;
+    socket.data.guest = false;
+
     socket.on("message", (message) => {
         io.to(message.channel).emit("message", message);
     });
@@ -34,6 +38,9 @@ io.on("connection", (socket) => {
         }
         
         socket.join(channel);
+        socket.data.username = username;
+        socket.data.channel = channel;
+        socket.data.guest = !!guest;
 
         io.to(channel).emit("userJoinedChannel", {
             username,
@@ -43,7 +50,43 @@ io.on("connection", (socket) => {
         console.log(`${username} joined channel ${channel} ${guest ? '(Guest)' : ''}`);
     });
 
+    socket.on("requestUserList", (data) => {
+        const channel = data?.channel || socket.data.channel;
+
+        if (!channel) {
+            socket.emit("userList", { channel: null, users: [] });
+            return;
+        }
+
+        const room = io.sockets.adapter.rooms.get(channel);
+        const users = [];
+
+        if (room) {
+            for (const socketId of room) {
+                const roomSocket = io.sockets.sockets.get(socketId);
+                if (!roomSocket || !roomSocket.data.username) continue;
+
+                users.push({
+                    username: roomSocket.data.username,
+                    isGuest: !!roomSocket.data.guest
+                });
+            }
+        }
+
+        socket.emit("userList", {
+            channel,
+            users
+        });
+    });
+
     socket.on("disconnect", () => {
+        if (socket.data.channel && socket.data.username) {
+            io.to(socket.data.channel).emit("userLeftChannel", {
+                username: socket.data.username,
+                isGuest: socket.data.guest
+            });
+        }
+
         console.log("User disconnected:", socket.id);
     });
 });
