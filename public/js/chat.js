@@ -157,10 +157,9 @@ function sendMessage(message) {
     console.log('Sending message:', message);
     chatInput.value = '';
 
-    message.content = message.content.trim();
 
     var messageObject = {
-        content: message,
+        content: message.trim(),
         timestamp: new Date(),
         username: accountData.username,
         channel: localStorage.getItem("channel")
