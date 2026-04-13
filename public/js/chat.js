@@ -37,6 +37,19 @@ function appendLine(html, timestamp) {
 }
 
 function recieveMessage(message) {
+
+    htmlspecialchars = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+
+    message.content = message.content.replace(/[&<>"']/g, function (match) {
+        return htmlspecialchars[match];
+    });
+
     console.log('Received message:', message);
 
     const username = accountData.username;
@@ -100,7 +113,7 @@ function ProcessCommand(command) {
             messageParent.innerHTML = '';
             break;
         case 'help':
-            appendLine(`<span style="color: green;">Available commands: /say [message], /clear, /help, /me [action]</span>`);
+            appendLine(`<span style="color: green;">Available commands: /say [message], /clear, /help, /me [action], /logout, /list, /whoami, /whereami, /channel</span>`);
             break;
         default:
             appendLine(`<span style="color: red;">Unknown command: ${cmd}. Type '/help' for more commands.</span>`);
@@ -143,6 +156,8 @@ function processInput() {
 function sendMessage(message) {
     console.log('Sending message:', message);
     chatInput.value = '';
+
+    message.content = message.content.trim();
 
     var messageObject = {
         content: message,
