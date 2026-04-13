@@ -1,0 +1,21 @@
+@import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Mono:ital,wght@0,200..800;1,200..800&family=National+Park:wght@200..800&display=swap');
+
+body {
+    font-family: 'Atkinson Hyperlegible Mono', monospace;
+    background-color: #222222;
+}
+
+#messages {
+    background-color: #111111;
+    padding: 1rem;
+    border-radius: 0.5rem;
+}
+
+main .container {
+    outline: 1px solid rgb(53, 53, 53);
+}
+
+.mention {
+    background-color: rgba(255, 255, 0, 0.2);
+    border-radius: 0.3rem;
+}
