@@ -61,14 +61,14 @@ function recieveMessage(message) {
         message.content = message.content.replace(escapedUrl, `<a href="${encodeURI(url)}" target="_blank" rel="noopener noreferrer">${escapedUrl}</a>`);
     });
 
-    console.log('Received message:', message);
+    console.log('Received message:', message, message.timestamp);
 
     const username = accountData.username;
     const escapedUsername = username.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
     const mentionRegex = new RegExp(`@${escapedUsername}(?![\\w])`, 'i');
 
-    let appendingLine = `&lt;<span style="color: ${stringToColour(message.username)}">${message.username}</span>&gt; <span>${message.content}</span>`;
+    let appendingLine = `&lt;<span style="color: ${stringToColour(message.username)}">${message.username}</span>&gt; <span>${message.content} <span class="timestamp">${message.timestamp}</span></span>`;
 
     if (mentionRegex.test(message.content)) {
         updateMentionedAmount(mentionedAmount + 1);
@@ -222,7 +222,7 @@ function sendMessage(message) {
 
     var messageObject = {
         content: message.trim(),
-        timestamp: new Date(),
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         username: accountData.username,
         channel: localStorage.getItem("channel")
     }
