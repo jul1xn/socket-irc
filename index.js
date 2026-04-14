@@ -23,7 +23,7 @@ io.on("connection", (socket) => {
     socket.data.guest = false;
 
     socket.on("message", (message) => {
-        io.to(message.channel).emit("message", message);
+        io.to(socket.data.channel).emit("message", message);
     });
 
     socket.on("joinChannel", (data) => {
@@ -50,9 +50,7 @@ io.on("connection", (socket) => {
         console.log(`${username} joined channel ${channel} ${guest ? '(Guest)' : ''}`);
     });
 
-    socket.on("requestUserList", (data) => {
-        const channel = data?.channel || socket.data.channel;
-
+    socket.on("requestUserList", ({ channel }, callback) => {
         if (!channel) {
             socket.emit("userList", { channel: null, users: [] });
             return;
@@ -73,10 +71,10 @@ io.on("connection", (socket) => {
             }
         }
 
-        socket.emit("userList", {
+        callback({
             channel,
             users
-        });
+        })
     });
 
     socket.on("pingStatus", (data, callback) => {

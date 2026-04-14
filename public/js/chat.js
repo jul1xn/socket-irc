@@ -28,7 +28,6 @@ socket.on("connect", () => {
 socket.on('message', recieveMessage);
 socket.on('userJoinedChannel', userJoinedChannel);
 socket.on('userLeftChannel', userLeftChannel);
-socket.on('userList', receiveUserList);
 
 function formatString(text) {
     htmlspecialchars = {
@@ -54,11 +53,12 @@ function appendLine(html, timestamp) {
 }
 
 function recieveMessage(message) {
-    
+
     const urlRegex = /(https?:\/\/[^\s<>"']+)/g;
     const urls = message.content.match(urlRegex) || [];
 
     message.content = formatString(message.content);
+    message.username = formatString(message.username);
 
     urls.forEach((url) => {
         const escapedUrl = formatString(url);
@@ -137,7 +137,7 @@ function ProcessCommand(command) {
             break;
         case 'clear':
             messageParent.innerHTML = '';
-            appendLine('<span style="color: grey;">Chat cleared.</span>');  
+            appendLine('<span style="color: grey;">Chat cleared.</span>');
             break;
         case 'help':
             console.log('Ran /help: Available commands: /say [message], /clear, /help, /me [action], /logout, /list, /whoami, /whereami, /channel, /status');
@@ -180,27 +180,25 @@ function userLeftChannel(data) {
 function listUsers() {
     socket.emit('requestUserList', {
         channel: localStorage.getItem("channel")
+    }, (data) => {
+        const channel = data.channel || localStorage.getItem("channel");
+        const users = Array.isArray(data.users) ? data.users : [];
+
+        if (users.length === 0) {
+            appendLine(`<span style="color: lightblue;">Users in #${channel}: none</span>`);
+            return;
+        }
+
+        const formattedUsers = users
+            .map((user) => {
+                user.username = formatString(user.username);
+                const guestSuffix = user.isGuest ? ' (Guest)' : '';
+                return `<span style="color: ${stringToColour(user.username)}">${user.username}</span>${guestSuffix}`;
+            })
+            .join(', ');
+
+        appendLine(`<span style="color: lightblue;">Users in #${channel}: ${formattedUsers}</span>`);
     });
-}
-
-function receiveUserList(data) {
-    const channel = data.channel || localStorage.getItem("channel");
-    const users = Array.isArray(data.users) ? data.users : [];
-
-    if (users.length === 0) {
-        appendLine(`<span style="color: lightblue;">Users in #${channel}: none</span>`);
-        return;
-    }
-
-    const formattedUsers = users
-        .map((user) => {
-            user.username = formatString(user.username);
-            const guestSuffix = user.isGuest ? ' (Guest)' : '';
-            return `<span style="color: ${stringToColour(user.username)}">${user.username}</span>${guestSuffix}`;
-        })
-        .join(', ');
-
-    appendLine(`<span style="color: lightblue;">Users in #${channel}: ${formattedUsers}</span>`);
 }
 
 function whoAmI() {
