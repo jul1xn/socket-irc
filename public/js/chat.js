@@ -38,6 +38,9 @@ function appendLine(html, timestamp) {
 }
 
 function recieveMessage(message) {
+    
+    const urlRegex = /(https?:\/\/[^\s<>"']+)/g;
+    const urls = message.content.match(urlRegex) || [];
 
     htmlspecialchars = {
         '&': '&amp;',
@@ -49,6 +52,13 @@ function recieveMessage(message) {
 
     message.content = message.content.replace(/[&<>"']/g, function (match) {
         return htmlspecialchars[match];
+    });
+
+    urls.forEach((url) => {
+        const escapedUrl = url.replace(/[&<>"']/g, function (match) {
+            return htmlspecialchars[match];
+        });
+        message.content = message.content.replace(escapedUrl, `<a href="${encodeURI(url)}" target="_blank" rel="noopener noreferrer">${escapedUrl}</a>`);
     });
 
     console.log('Received message:', message);
@@ -122,15 +132,30 @@ function ProcessCommand(command) {
             break;
         case 'clear':
             messageParent.innerHTML = '';
-            setTimeout(() => {
-                console.log('Ran /clear: Chat cleared.');
-                messageParent.innerHTML = '';
-            }, 1000);
             appendLine('<span style="color: grey;">Chat cleared.</span>');  
             break;
         case 'help':
-            console.log('Ran /help: Available commands: /say [message], /clear, /help, /me [action], /logout, /list, /whoami, /whereami, /channel');
-            appendLine(`<span style="color: green;">Available commands: /say [message], /clear, /help, /me [action], /logout, /list, /whoami, /whereami, /channel</span>`);
+            console.log('Ran /help: Available commands: /say [message], /clear, /help, /me [action], /logout, /list, /whoami, /whereami, /channel, /status');
+            appendLine(`<span style="color: green;">Available commands: /say [message], /clear, /help, /me [action], /logout, /list, /whoami, /whereami, /channel, /status</span>`);
+            break;
+        case 'me':
+            console.log('Ran /me with args:', args);
+            const actionMessage = args.join(' ');
+            if (actionMessage.trim() === '') {
+                appendLine(`<span style="color: red;">Usage: /me [action]</span>`);
+                return;
+            }
+            break;
+        case 'status':
+            console.log('Ran /status');
+            socket.emit('pingStatus', {
+            }, (response) => {
+                if (response && response.status === 'ok') {
+                    appendLine(`<span style="color: lightgreen;">Server status: Online</span>`);
+                } else {
+                    appendLine(`<span style="color: red;">Server status: Offline</span>`);
+                }
+            });
             break;
         default:
             appendLine(`<span style="color: red;">Unknown command: ${cmd}. Type '/help' for more commands.</span>`);
@@ -194,7 +219,6 @@ function processInput() {
 function sendMessage(message) {
     console.log('Sending message:', message);
     chatInput.value = '';
-
 
     var messageObject = {
         content: message.trim(),

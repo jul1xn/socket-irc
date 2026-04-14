@@ -11,6 +11,11 @@ body {
     border-radius: 0.5rem;
 }
 
+#messages div {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+}
+
 main .container {
     outline: 1px solid rgb(53, 53, 53);
 }

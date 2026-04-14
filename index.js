@@ -79,6 +79,12 @@ io.on("connection", (socket) => {
         });
     });
 
+    socket.on("pingStatus", (data, callback) => {
+        if (typeof callback === 'function') {
+            callback({ status: 'ok' });
+        }
+    });
+
     socket.on("disconnect", () => {
         if (socket.data.channel && socket.data.username) {
             io.to(socket.data.channel).emit("userLeftChannel", {
