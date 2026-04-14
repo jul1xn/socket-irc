@@ -89,31 +89,47 @@ function ProcessCommand(command) {
 
     switch (cmd) {
         case 'logout':
+            console.log('Running /logout command');
             localStorage.removeItem("accountData");
             localStorage.removeItem("channel");
             window.location.href = "/";
             break;
         case 'list':
+            console.log('Ran /list');
             listUsers();
             break;
         case 'whoami':
+            console.log('Ran /whoami');
             whoAmI();
             break;
         case 'whereami':
+            console.log('Ran /whereami');
             whereAmI();
             break;
         case 'channel':
+            console.log('Ran /channel');
             channelModal.show();
             break;
         case 'say':
+            console.log('Ran /say with args:', args);
             const sayMessage = args.join(' ');
+            if (sayMessage.trim() === '') {
+                appendLine(`<span style="color: red;">Usage: /say [message]</span>`);
+                return;
+            }
             console.log('Sending message:', sayMessage);
             sendMessage(sayMessage);
             break;
         case 'clear':
             messageParent.innerHTML = '';
+            setTimeout(() => {
+                console.log('Ran /clear: Chat cleared.');
+                messageParent.innerHTML = '';
+            }, 1000);
+            appendLine('<span style="color: grey;">Chat cleared.</span>');  
             break;
         case 'help':
+            console.log('Ran /help: Available commands: /say [message], /clear, /help, /me [action], /logout, /list, /whoami, /whereami, /channel');
             appendLine(`<span style="color: green;">Available commands: /say [message], /clear, /help, /me [action], /logout, /list, /whoami, /whereami, /channel</span>`);
             break;
         default:
@@ -217,6 +233,7 @@ document.getElementById('channel-submit-button').addEventListener('click', funct
     channelModal.hide();
 });
 
+appendLine('<span style="color: grey;">Made by Juljaan and Kijan</span>');
 appendLine(`<span style="color: green;">Welcome to the chat, <span style="color: ${stringToColour(accountData.username)}">${accountData.username}</span>! Type '/help' for a list of commands.</span>`);
 whoAmI();
 whereAmI();
