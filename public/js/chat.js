@@ -30,6 +30,21 @@ socket.on('userJoinedChannel', userJoinedChannel);
 socket.on('userLeftChannel', userLeftChannel);
 socket.on('userList', receiveUserList);
 
+function formatString(text) {
+    htmlspecialchars = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+
+    text = text.replace(/[&<>"']/g, function (match) {
+        return htmlspecialchars[match];
+    });
+    return text;
+}
+
 function appendLine(html, timestamp) {
     const messageElement = document.createElement('div');
     messageElement.setAttribute('data-timestamp', timestamp || new Date().toISOString());
@@ -43,22 +58,10 @@ function recieveMessage(message) {
     const urlRegex = /(https?:\/\/[^\s<>"']+)/g;
     const urls = message.content.match(urlRegex) || [];
 
-    htmlspecialchars = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;'
-    };
-
-    message.content = message.content.replace(/[&<>"']/g, function (match) {
-        return htmlspecialchars[match];
-    });
+    message.content = formatString(message.content);
 
     urls.forEach((url) => {
-        const escapedUrl = url.replace(/[&<>"']/g, function (match) {
-            return htmlspecialchars[match];
-        });
+        const escapedUrl = formatString(url);
         message.content = message.content.replace(escapedUrl, `<a href="${encodeURI(url)}" target="_blank" rel="noopener noreferrer">${escapedUrl}</a>`);
     });
 
@@ -165,10 +168,12 @@ function ProcessCommand(command) {
 }
 
 function userJoinedChannel(data) {
+    data.username = formatString(data.username);
     appendLine(`<span style="color: ${stringToColour(data.username)}">${data.username}</span> <span style="color: lightgreen;">has joined channel #${localStorage.getItem("channel")}.${data.isGuest ? ' (Guest)' : ''}</span>`);
 }
 
 function userLeftChannel(data) {
+    data.username = formatString(data.username);
     appendLine(`<span style="color: ${stringToColour(data.username)}">${data.username}</span> <span style="color: IndianRed;">has left the channel.</span>`);
 }
 
@@ -189,6 +194,7 @@ function receiveUserList(data) {
 
     const formattedUsers = users
         .map((user) => {
+            user.username = formatString(user.username);
             const guestSuffix = user.isGuest ? ' (Guest)' : '';
             return `<span style="color: ${stringToColour(user.username)}">${user.username}</span>${guestSuffix}`;
         })
@@ -198,7 +204,7 @@ function receiveUserList(data) {
 }
 
 function whoAmI() {
-    appendLine(`<span style="color: lightblue;">You are logged in as: </span><span style="color: ${stringToColour(accountData.username)}">${accountData.username}</span>${accountData.guest ? ' <span style="color: orange;">(Guest)</span>' : ''}`);
+    appendLine(`<span style="color: lightblue;">You are logged in as: </span><span style="color: ${stringToColour(formatString(accountData.username))}">${formatString(accountData.username)}</span>${accountData.guest ? ' <span style="color: orange;">(Guest)</span>' : ''}`);
 }
 
 function whereAmI() {
@@ -260,6 +266,6 @@ document.getElementById('channel-submit-button').addEventListener('click', funct
 });
 
 appendLine('<span style="color: grey;">Made by Juljaan and Kijan</span>');
-appendLine(`<span style="color: green;">Welcome to the chat, <span style="color: ${stringToColour(accountData.username)}">${accountData.username}</span>! Type '/help' for a list of commands.</span>`);
+appendLine(`<span style="color: green;">Welcome to the chat, <span style="color: ${stringToColour(formatString(accountData.username))}">${formatString(accountData.username)}</span>! Type '/help' for a list of commands.</span>`);
 whoAmI();
 whereAmI();
