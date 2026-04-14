@@ -5,6 +5,7 @@ let mentionedAmount = 0;
 const documentTitle = document.title;
 const accountData = retrieveAccountData() ? JSON.parse(retrieveAccountData()) : null;
 const socket = io();
+var time = new Date([], { hour: '2-digit', minute: '2-digit' });
 const channelModal = new bootstrap.Modal(document.getElementById('channel-modal'), {
     backdrop: true,
     focus: true,
@@ -68,7 +69,8 @@ function recieveMessage(message) {
 
     const mentionRegex = new RegExp(`@${escapedUsername}(?![\\w])`, 'i');
 
-    let appendingLine = `&lt;<span style="color: ${stringToColour(message.username)}">${message.username}</span>&gt; <span>${message.content} <span class="timestamp">${message.timestamp}</span></span>`;
+    const formattedTime = new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    let appendingLine = `&lt;<span style="color: ${stringToColour(message.username)}">${message.username}</span>&gt; <span>${message.content} <span class="timestamp">${formattedTime}</span></span>`;
 
     if (mentionRegex.test(message.content)) {
         updateMentionedAmount(mentionedAmount + 1);
@@ -222,7 +224,7 @@ function sendMessage(message) {
 
     var messageObject = {
         content: message.trim(),
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        timestamp: new Date().toISOString(),
         username: accountData.username,
         channel: localStorage.getItem("channel")
     }

@@ -28,4 +28,9 @@ main .container {
 .timestamp {
     color: #888888;
     font-size: 0.8rem;
+    opacity: 0;
+}
+
+#messages div span:hover .timestamp {
+    opacity: 1;
 }
