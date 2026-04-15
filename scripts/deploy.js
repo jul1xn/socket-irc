@@ -24,7 +24,7 @@ try {
     console.log("\n=== BUILD ===");
     run("npm i");
     
-    run("node build.js");
+    run("node ./scripts/build.js");
 
     // 3. Platform-specific step
     const platform = os.platform();
