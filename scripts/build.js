@@ -14,7 +14,7 @@ if (!fs.existsSync(OUTPUT_DIR)) {
 console.log("Obfuscating JS files...");
 
 execSync(
-  `npx javascript-obfuscator public --output public-obf --compact true --identifier-names-generator hexadecimal --rename-globals true --string-array true --string-array-encoding base64 --string-array-threshold 1 --control-flow-flattening true --control-flow-flattening-threshold 1 --dead-code-injection true --dead-code-injection-threshold 0.4 --self-defending true --debug-protection true --debug-protection-interval 2000`,
+  `npx javascript-obfuscator public --output public-obf --compact true --identifier-names-generator hexadecimal --rename-globals false --string-array true --string-array-encoding base64 --string-array-threshold 1 --control-flow-flattening true --control-flow-flattening-threshold 1 --dead-code-injection true --dead-code-injection-threshold 0.4 --self-defending true --debug-protection true --debug-protection-interval 2000`,
   { stdio: "inherit" }
 );
 
