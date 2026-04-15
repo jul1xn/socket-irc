@@ -1,3 +1,12 @@
+const searchParams = new URLSearchParams(location.search);
+if (searchParams.has('channel')) {
+    try {
+        var result = atob(searchParams.get('channel'));
+        localStorage.setItem('channel', result);
+    }
+    catch {}
+}
+
 const chatButton = document.getElementById('chat-button');
 const chatInput = document.getElementById('chat-input');
 const messageParent = document.getElementById('messages');
@@ -17,6 +26,10 @@ const channelModal = new bootstrap.Modal(document.getElementById('channel-modal'
     keyboard: true
 });
 
+if (!accountData) {
+    window.location.href = "/";
+}
+
 function renderEmojiList() {
     const emojiList = document.getElementById('emoji-list');
     if (!emojiList) return;
@@ -24,10 +37,6 @@ function renderEmojiList() {
     emojiList.innerHTML = Object.entries(emojiMap)
         .map(([name, emoji]) => `<li><code>:${name}:</code> ${emoji}</li>`)
         .join('');
-}
-
-if (!accountData) {
-    window.location.href = "/";
 }
 
 socket.on("connect", () => {
@@ -182,6 +191,10 @@ function ProcessCommand(command) {
             localStorage.removeItem("channel");
             window.location.href = "/";
             break;
+        case 'link':
+            var link = `${location.origin}/chat?channel=${btoa(localStorage.getItem('channel'))}`;
+            appendLine(`<span style="color: green">Unique link to this channel is: <a href="${link}">${link}</a></span>`)
+            break;
         case 'list':
             console.log('Ran /list');
             listUsers();
@@ -218,8 +231,7 @@ function ProcessCommand(command) {
             appendLine('<span style="color: grey;">Chat cleared.</span>');
             break;
         case 'help':
-            console.log('Ran /help: Available commands: /say [message], /clear, /help, /me [action], /logout, /list, /whoami, /whereami, /channel, /formatting, /status');
-            appendLine(`<span style="color: green;">Available commands: /say [message], /clear, /help, /me [action], /logout, /list, /whoami, /whereami, /channel, /formatting, /status</span>`);
+            appendLine(`<span style="color: green;">Available commands: /link, /say [message], /clear, /help, /me [action], /logout, /list, /whoami, /whereami, /channel, /formatting, /status</span>`);
             break;
         case 'me':
             console.log('Ran /me with args:', args);
