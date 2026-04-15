@@ -8,7 +8,7 @@ const server = http.createServer(app);
 const io = new Server(server);
 
 const database = require('./database');
-const port = 3000;
+const port = 3001;
 
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
@@ -162,5 +162,5 @@ app.get('/chat', (req, res) => {
 });
 
 server.listen(port, () => {
-    console.log("Server listening on http://localhost:3000");
+    console.log(`Server listening on http://localhost:${port}`);
 });

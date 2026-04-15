@@ -124,12 +124,14 @@ function recieveMessage(message) {
 
     if (mentionRegex.test(message.content)) {
         updateMentionedAmount(mentionedAmount + 1);
-        notifyMe(`Mentioned by ${message.username}`, message.content, null);
-
         appendingLine = appendingLine.replace(
             `<span>${message.content}</span>`,
             `<span class="mention">${message.content}</span>`
         );
+        try {
+            notifyMe(`Mentioned by ${message.username}`, message.content, null);
+        }
+        catch {}
     }
 
     appendLine(appendingLine, message.timestamp);
@@ -280,6 +282,7 @@ function processInput() {
         return;
     }
 
+    addToHistory(message);
     sendMessage(message);
 }
 
@@ -298,6 +301,14 @@ function sendMessage(message) {
 
 chatButton.addEventListener('click', processInput);
 chatInput.addEventListener('input', replaceEmojiCodesInInput);
+chatInput.addEventListener('keydown', function (event) {
+    if (event.key === 'ArrowUp') {
+        cycleHistoryUp(event.target);
+    }
+    if (event.key === 'ArrowDown') {
+        cycleHistoryDown(event.target);
+    }
+})
 chatInput.addEventListener('keypress', function (event) {
     if (event.key === 'Enter') {
         processInput();
