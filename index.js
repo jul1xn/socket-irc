@@ -12,9 +12,11 @@ const port = 3000;
 const enviroment = process.env.NODE_ENV ?? "development";
 
 if (enviroment === "production") {
+    console.log("Enviroment is production, using public-obf");
     app.use(express.static('public-obf'));
 }
 else if (enviroment === "development") {
+    console.log("Enviroment is development, using public");
     app.use(express.static('public'));
 }
 
