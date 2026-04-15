@@ -6,7 +6,7 @@
     "development": "nodemon index.js",
     "production": "set NODE_ENV=production&&node index",
     "dev": "npm run development",
-    "start": "npm run production",
+    "start": "npm run production"
   },
   "keywords": [],
   "author": "",
