@@ -9,9 +9,16 @@ const io = new Server(server);
 
 const database = require('./database');
 const port = 3000;
+const enviroment = process.env.NODE_ENV ?? "development";
+
+if (enviroment === "production") {
+    app.use(express.static('public-obf'));
+}
+else if (enviroment === "development") {
+    app.use(express.static('public'));
+}
 
 app.set('view engine', 'ejs');
-app.use(express.static('public'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
