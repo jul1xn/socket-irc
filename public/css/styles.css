@@ -34,3 +34,14 @@ main .container {
 #messages div span:hover .timestamp {
     opacity: 1;
 }
+
+.spoiler {
+  background: black;
+  color: black;
+  cursor: pointer;
+  transition: color 0.1s ease;
+}
+
+.spoiler:hover {
+  color: white;
+}

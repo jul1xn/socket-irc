@@ -12,6 +12,34 @@ const channelModal = new bootstrap.Modal(document.getElementById('channel-modal'
     keyboard: true
 });
 
+const emojiMap = {
+  sad: "😢",
+  sob: "😭",
+  laugh: "😂",
+  heart: "❤️",
+  thumbs_up: "👍",
+  fire: "🔥",
+  skull: "💀"
+};
+
+function replaceEmojiCodes(text) {
+    return text.replace(/:([a-z_]+):/g, (match, name) => emojiMap[name] || match);
+}
+
+function replaceEmojiCodesInInput() {
+    const cursorPosition = chatInput.selectionStart;
+    const originalValue = chatInput.value;
+    const updatedValue = replaceEmojiCodes(originalValue);
+
+    if (originalValue === updatedValue) return;
+
+    chatInput.value = updatedValue;
+
+    const textBeforeCursor = originalValue.slice(0, cursorPosition);
+    const updatedCursorPosition = replaceEmojiCodes(textBeforeCursor).length;
+    chatInput.setSelectionRange(updatedCursorPosition, updatedCursorPosition);
+}
+
 if (!accountData) {
     window.location.href = "/";
 }
@@ -52,12 +80,37 @@ function appendLine(html, timestamp) {
     messageParent.scrollTop = messageParent.scrollHeight;
 }
 
+function discordFormat(text) {
+  return text
+    // Code block (~~~code~~~)
+    .replace(/~~~([\s\S]*?)~~~/g, "<pre><code>$1</code></pre>")
+
+    // Inline code (~code~)
+    .replace(/~(.*?)~/g, "<code>$1</code>")
+
+    // Bold
+    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+
+    // Italic
+    .replace(/\*(.*?)\*/g, "<em>$1</em>")
+
+    // Strikethrough
+    .replace(/~~(.*?)~~/g, "<del>$1</del>")
+
+    // Underline
+    .replace(/__(.*?)__/g, "<u>$1</u>")
+
+    // Spoiler (||text||)
+    .replace(/\|\|(.*?)\|\|/g, '<span class="spoiler">$1</span>');
+}
+
 function recieveMessage(message) {
 
     const urlRegex = /(https?:\/\/[^\s<>"']+)/g;
     const urls = message.content.match(urlRegex) || [];
 
     message.content = formatString(message.content);
+    message.content = discordFormat(message.content);
     message.username = formatString(message.username);
 
     urls.forEach((url) => {
@@ -237,6 +290,7 @@ function sendMessage(message) {
 }
 
 chatButton.addEventListener('click', processInput);
+chatInput.addEventListener('input', replaceEmojiCodesInInput);
 chatInput.addEventListener('keypress', function (event) {
     if (event.key === 'Enter') {
         processInput();
