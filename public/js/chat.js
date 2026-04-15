@@ -6,38 +6,24 @@ const documentTitle = document.title;
 const accountData = retrieveAccountData() ? JSON.parse(retrieveAccountData()) : null;
 const socket = io();
 var time = new Date([], { hour: '2-digit', minute: '2-digit' });
+const formattingModal = new bootstrap.Modal(document.getElementById('formatting-modal'), {
+    backdrop: true,
+    focus: true,
+    keyboard: true
+});
 const channelModal = new bootstrap.Modal(document.getElementById('channel-modal'), {
     backdrop: true,
     focus: true,
     keyboard: true
 });
 
-const emojiMap = {
-  sad: "😢",
-  sob: "😭",
-  laugh: "😂",
-  heart: "❤️",
-  thumbs_up: "👍",
-  fire: "🔥",
-  skull: "💀"
-};
+function renderEmojiList() {
+    const emojiList = document.getElementById('emoji-list');
+    if (!emojiList) return;
 
-function replaceEmojiCodes(text) {
-    return text.replace(/:([a-z_]+):/g, (match, name) => emojiMap[name] || match);
-}
-
-function replaceEmojiCodesInInput() {
-    const cursorPosition = chatInput.selectionStart;
-    const originalValue = chatInput.value;
-    const updatedValue = replaceEmojiCodes(originalValue);
-
-    if (originalValue === updatedValue) return;
-
-    chatInput.value = updatedValue;
-
-    const textBeforeCursor = originalValue.slice(0, cursorPosition);
-    const updatedCursorPosition = replaceEmojiCodes(textBeforeCursor).length;
-    chatInput.setSelectionRange(updatedCursorPosition, updatedCursorPosition);
+    emojiList.innerHTML = Object.entries(emojiMap)
+        .map(([name, emoji]) => `<li><code>:${name}:</code> ${emoji}</li>`)
+        .join('');
 }
 
 if (!accountData) {
@@ -178,6 +164,11 @@ function ProcessCommand(command) {
             console.log('Ran /channel');
             channelModal.show();
             break;
+        case 'formatting':
+            console.log('Ran /formatting');
+            appendLine('<span style="color: yellow" class="formatting-guide-button" type="button">Formatting guide opened. Click here to open it again.</span>');
+            formattingModal.show();
+            break;
         case 'say':
             console.log('Ran /say with args:', args);
             const sayMessage = args.join(' ');
@@ -193,8 +184,8 @@ function ProcessCommand(command) {
             appendLine('<span style="color: grey;">Chat cleared.</span>');
             break;
         case 'help':
-            console.log('Ran /help: Available commands: /say [message], /clear, /help, /me [action], /logout, /list, /whoami, /whereami, /channel, /status');
-            appendLine(`<span style="color: green;">Available commands: /say [message], /clear, /help, /me [action], /logout, /list, /whoami, /whereami, /channel, /status</span>`);
+            console.log('Ran /help: Available commands: /say [message], /clear, /help, /me [action], /logout, /list, /whoami, /whereami, /channel, /formatting, /status');
+            appendLine(`<span style="color: green;">Available commands: /say [message], /clear, /help, /me [action], /logout, /list, /whoami, /whereami, /channel, /formatting, /status</span>`);
             break;
         case 'me':
             console.log('Ran /me with args:', args);
@@ -301,6 +292,12 @@ chatInput.addEventListener('focus', function () {
     updateMentionedAmount(0);
 });
 
+messageParent.addEventListener('click', function (event) {
+    if (event.target.closest('.formatting-guide-button')) {
+        formattingModal.show();
+    }
+});
+
 document.getElementById('channel-submit-button').addEventListener('click', function () {
     const channelInput = document.getElementById('channel-input');
     if (channelInput.value === '') return;
@@ -319,5 +316,6 @@ document.getElementById('channel-submit-button').addEventListener('click', funct
 
 appendLine('<span style="color: grey;">Made by Juljaan and Kijan</span>');
 appendLine(`<span style="color: green;">Welcome to the chat, <span style="color: ${stringToColour(formatString(accountData.username))}">${formatString(accountData.username)}</span>! Type '/help' for a list of commands.</span>`);
+renderEmojiList();
 whoAmI();
 whereAmI();

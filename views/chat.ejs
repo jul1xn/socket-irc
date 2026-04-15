@@ -21,6 +21,78 @@
                 <button class="btn btn-secondary" type="button" id="chat-button">Send</button>
             </div>
         </div>
+        <div class="modal fade" id="formatting-modal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Formatting help</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="accordion" id="formatting-accordion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#formatting-markdown">
+                                        Text formatting
+                                    </button>
+                                </h2>
+                                <div id="formatting-markdown" class="accordion-collapse collapse show" data-bs-parent="#formatting-accordion">
+                                    <div class="accordion-body">
+                                        <p>This chat supports simple Discord-style formatting. Just type your message normally, then wrap the part you want to style with the matching symbols before sending it.</p>
+                                        <ul class="mb-3">
+                                            <li><code>**bold**</code> becomes <strong>bold</strong></li>
+                                            <li><code>*italic*</code> becomes <em>italic</em></li>
+                                            <li><code>~~strike~~</code> becomes <del>strike</del></li>
+                                            <li><code>__underline__</code> becomes <u>underline</u></li>
+                                            <li><code>~code~</code> shows inline <code>code</code></li>
+                                            <li><code>~~~code block~~~</code> creates a larger code block</li>
+                                            <li><code>||spoiler||</code> hides text until someone hovers it</li>
+                                        </ul>
+                                        <p class="mb-2">Examples:</p>
+                                        <ul class="mb-0">
+                                            <li><code>Hello **world**</code> makes only <strong>world</strong> bold</li>
+                                            <li><code>This is *important*</code> makes <em>important</em> italic</li>
+                                            <li><code>My secret is ||hidden||</code> hides the word until hover</li>
+                                            <li><code>Use ~npm start~</code> is useful for commands and code words</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#formatting-emojis">
+                                        Emojis
+                                    </button>
+                                </h2>
+                                <div id="formatting-emojis" class="accordion-collapse collapse" data-bs-parent="#formatting-accordion">
+                                    <div class="accordion-body">
+                                        <p>Emojis are typed by name with colons on both sides. As soon as you finish a valid emoji code, it is replaced live in the input bar.</p>
+                                        <ul class="mb-3">
+                                            <li>Type <code>:sad:</code> and it changes into the matching emoji automatically</li>
+                                            <li>You must include both colons, like <code>:heart:</code></li>
+                                            <li>If the name does not exist, the text stays the same</li>
+                                        </ul>
+                                        <p class="mb-0">Tip: open the emoji list below if you forget the available names.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#formatting-emoji-list">
+                                        Available emojis
+                                    </button>
+                                </h2>
+                                <div id="formatting-emoji-list" class="accordion-collapse collapse" data-bs-parent="#formatting-accordion">
+                                    <div class="accordion-body">
+                                        <ul class="mb-0" id="emoji-list"></ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="modal fade" id="channel-modal" tabindex="-1">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -46,6 +118,7 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="/js/storage.js"></script>
+    <script src="/js/emojis.js"></script>
     <script src="/js/toast.js"></script>
     <script src="/js/chat.js"></script>
 </body>
