@@ -67,6 +67,34 @@ function appendLine(html, timestamp) {
     messageParent.scrollTop = messageParent.scrollHeight;
 }
 
+function escapeRegex(text) {
+    return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function buildMentionRegex(username) {
+    const escapedUsername = escapeRegex(username);
+    return new RegExp(`(^|[^\\w])(@${escapedUsername}|@everyone)(?![\\w])`, 'gi');
+}
+
+function hasMention(text, username) {
+    return buildMentionRegex(username).test(text);
+}
+
+function highlightMentions(html, username) {
+    const mentionRegex = buildMentionRegex(username);
+
+    return html
+        .split(/(<[^>]+>)/g)
+        .map((part) => {
+            if (part.startsWith('<') && part.endsWith('>')) {
+                return part;
+            }
+
+            return part.replace(mentionRegex, '$1<span class="mention">$2</span>');
+        })
+        .join('');
+}
+
 function discordFormat(text) {
   return text
     // Code block (~~~code~~~)
@@ -99,11 +127,12 @@ function recieveAction(message) {
 }
 
 function recieveMessage(message) {
+    const rawContent = message.content;
 
     const urlRegex = /(https?:\/\/[^\s<>"']+)/g;
-    const urls = message.content.match(urlRegex) || [];
+    const urls = rawContent.match(urlRegex) || [];
 
-    message.content = formatString(message.content);
+    message.content = formatString(rawContent);
     message.content = discordFormat(message.content);
     message.username = formatString(message.username);
 
@@ -115,19 +144,14 @@ function recieveMessage(message) {
     console.log('Received message:', message, message.timestamp);
 
     const username = accountData.username;
-    const escapedUsername = username.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-    const mentionRegex = new RegExp(`@${escapedUsername}(?![\\w])`, 'i');
+    const isMentioned = hasMention(rawContent, username);
 
     const formattedTime = new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    let appendingLine = `&lt;<span style="color: ${stringToColour(message.username)}">${message.username}</span>&gt; <span>${message.content} <span class="timestamp">${formattedTime}</span></span>`;
+    const renderedContent = isMentioned ? highlightMentions(message.content, username) : message.content;
+    let appendingLine = `&lt;<span style="color: ${stringToColour(message.username)}">${message.username}</span>&gt; <span>${renderedContent} <span class="timestamp">${formattedTime}</span></span>`;
 
-    if (mentionRegex.test(message.content)) {
+    if (isMentioned) {
         updateMentionedAmount(mentionedAmount + 1);
-        appendingLine = appendingLine.replace(
-            `<span>${message.content}</span>`,
-            `<span class="mention">${message.content}</span>`
-        );
         try {
             notifyMe(`Mentioned by ${message.username}`, message.content, null);
         }
