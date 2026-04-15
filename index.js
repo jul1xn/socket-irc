@@ -25,6 +25,9 @@ io.on("connection", (socket) => {
     socket.on("message", (message) => {
         io.to(socket.data.channel).emit("message", message);
     });
+    socket.on("action", (message) => {
+        io.to(socket.data.channel).emit("action", message);
+    })
 
     socket.on("joinChannel", (data) => {
         const { username, channel, guest, oldchannel } = data;

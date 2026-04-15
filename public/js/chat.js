@@ -40,6 +40,7 @@ socket.on("connect", () => {
 });
 
 socket.on('message', recieveMessage);
+socket.on('action', recieveAction);
 socket.on('userJoinedChannel', userJoinedChannel);
 socket.on('userLeftChannel', userLeftChannel);
 
@@ -88,6 +89,13 @@ function discordFormat(text) {
 
     // Spoiler (||text||)
     .replace(/\|\|(.*?)\|\|/g, '<span class="spoiler">$1</span>');
+}
+
+function recieveAction(message) {
+    message.content = formatString(message.content);
+    message.username = formatString(message.username);
+
+    appendLine(`<span>* <i><span style="color: ${stringToColour(message.username)}">${message.username}</span> ${message.content}</i></span>`, message.timestamp);
 }
 
 function recieveMessage(message) {
@@ -194,6 +202,15 @@ function ProcessCommand(command) {
                 appendLine(`<span style="color: red;">Usage: /me [action]</span>`);
                 return;
             }
+
+            var object = {
+                content: actionMessage,
+                timestamp: new Date().toISOString(),
+                username: accountData.username
+            }
+
+            console.log("Sending /me with obj:", object);
+            socket.emit('action', object);
             break;
         case 'status':
             console.log('Ran /status');
@@ -274,7 +291,6 @@ function sendMessage(message) {
         content: message.trim(),
         timestamp: new Date().toISOString(),
         username: accountData.username,
-        channel: localStorage.getItem("channel")
     }
 
     socket.emit('message', messageObject);
