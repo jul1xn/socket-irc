@@ -8,7 +8,7 @@ const server = http.createServer(app);
 const io = new Server(server);
 
 const database = require('./database');
-const port = 3001;
+const port = 3000;
 
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
@@ -23,10 +23,10 @@ io.on("connection", (socket) => {
     socket.data.guest = false;
 
     socket.on("message", (message) => {
-        io.to(socket.data.channel).emit("message", message);
+        io.to(socket.data.channel).emit("message", {...message, username: socket.data.username });
     });
     socket.on("action", (message) => {
-        io.to(socket.data.channel).emit("action", message);
+        io.to(socket.data.channel).emit("action", {...message, username: socket.data.username });
     })
 
     socket.on("joinChannel", (data) => {

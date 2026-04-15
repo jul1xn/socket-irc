@@ -232,7 +232,6 @@ function ProcessCommand(command) {
             var object = {
                 content: actionMessage,
                 timestamp: new Date().toISOString(),
-                username: accountData.username
             }
 
             console.log("Sending /me with obj:", object);
@@ -316,8 +315,7 @@ function sendMessage(message) {
 
     var messageObject = {
         content: message.trim(),
-        timestamp: new Date().toISOString(),
-        username: accountData.username,
+        timestamp: new Date().toISOString()
     }
 
     socket.emit('message', messageObject);
