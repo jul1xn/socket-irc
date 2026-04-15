@@ -6,6 +6,8 @@ const bcrypt = require('bcrypt');
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
+const dotenv = require('dotenv');
+dotenv.config();
 
 const database = require('./database');
 const port = 3000;
