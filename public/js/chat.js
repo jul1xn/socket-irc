@@ -195,6 +195,10 @@ function ProcessCommand(command) {
             var link = `${location.origin}/chat?channel=${btoa(localStorage.getItem('channel'))}`;
             appendLine(`<span style="color: green">Unique link to this channel is: <a href="${link}">${link}</a></span>`)
             break;
+        case 'img':
+            console.log('Ran /img');
+            window.open("https://toolbox.prowser.nl/toolbox/temp-file-upload");
+            break;
         case 'list':
             console.log('Ran /list');
             listUsers();
@@ -231,7 +235,7 @@ function ProcessCommand(command) {
             appendLine('<span style="color: grey;">Chat cleared.</span>');
             break;
         case 'help':
-            appendLine(`<span style="color: green;">Available commands: /link, /say [message], /clear, /help, /me [action], /logout, /list, /whoami, /whereami, /channel, /formatting, /status</span>`);
+            appendLine(`<span style="color: green;">Available commands: /link, /img, /say [message], /clear, /help, /me [action], /logout, /list, /whoami, /whereami, /channel, /formatting, /status</span>`);
             break;
         case 'me':
             console.log('Ran /me with args:', args);
